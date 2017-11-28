@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -56,6 +59,12 @@ public class ManageIssue {
                 deleteIssue();
                 break;
             } else if (n == 8) {
+                try {
+                    this.transactionExample();
+                } catch (Throwable ex) {
+                    Logger.getLogger(ManageIssue.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else if (n == 9) {
                 break;
             }
         }
@@ -70,8 +79,9 @@ public class ManageIssue {
         System.out.println("    5 Show events");
         System.out.println("    6 Edit content");
         System.out.println("    7 Delete issue");
-        System.out.println("    8 Exit");
-        System.out.println("[1-7]");
+        System.out.println("    8 Example transaction");
+        System.out.println("    9 Exit");
+        System.out.println("[1-9]");
 
         Scanner reader = new Scanner(System.in);
         int n = reader.nextInt();
@@ -292,6 +302,18 @@ public class ManageIssue {
 
             System.out.println(query.executeUpdate());
 
+            transaction.commit();
+
+        } catch (Throwable t) {
+            transaction.rollback();
+            throw t;
+        }
+    }
+    
+    public void transactionExample() throws Throwable {
+        Transaction transaction = session.beginTransaction();
+        try {
+            //TimeUnit.MINUTES.sleep(1);
             transaction.commit();
 
         } catch (Throwable t) {
